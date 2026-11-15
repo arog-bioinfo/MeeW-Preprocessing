@@ -1,0 +1,130 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+type: object
+description: Sequali 1.0.2 JSON fields consumed by short-read parameter inference; unrelated report sections are allowed
+
+$defs:
+  quality_values:
+    type: array
+    minItems: 100
+    maxItems: 100
+    items:
+      type: number
+      minimum: 0
+      maximum: 93
+
+  percentile_pair:
+    type: array
+    minItems: 2
+    maxItems: 2
+    prefixItems:
+      - type: string
+        minLength: 1
+      - {}
+    items: false
+    allOf:
+      - if:
+          prefixItems:
+            - const: mean
+        then:
+          prefixItems:
+            - {}
+            - $ref: "#/$defs/quality_values"
+
+  anchored_quality:
+    type: object
+    required:
+      - end_percentiles
+    properties:
+      end_percentiles:
+        type: array
+        minItems: 1
+        items:
+          $ref: "#/$defs/percentile_pair"
+        contains:
+          type: array
+          prefixItems:
+            - const: mean
+        minContains: 1
+        maxContains: 1
+    additionalProperties: true
+
+  composition:
+    type: object
+    required:
+      - x_labels
+      - A
+      - C
+      - G
+      - T
+    properties:
+      x_labels:
+        type: array
+        minItems: 1
+        items:
+          type: string
+          pattern: "^[1-9][0-9]*(?:-[1-9][0-9]*)?$"
+      A:
+        $ref: "#/$defs/composition_values"
+      C:
+        $ref: "#/$defs/composition_values"
+      G:
+        $ref: "#/$defs/composition_values"
+      T:
+        $ref: "#/$defs/composition_values"
+    additionalProperties: true
+
+  composition_values:
+    type: array
+    minItems: 1
+    items:
+      type: number
+      minimum: 0
+      maximum: 1
+
+  summary:
+    type: object
+    required:
+      - maximum_length
+    properties:
+      maximum_length:
+        type: integer
+        minimum: 1
+    additionalProperties: true
+
+properties:
+  meta:
+    type: object
+    required:
+      - sequali_version
+    properties:
+      sequali_version:
+        const: 1.0.2
+    additionalProperties: true
+  summary:
+    $ref: "#/$defs/summary"
+  per_position_mean_quality_and_spread:
+    $ref: "#/$defs/anchored_quality"
+  per_position_base_content:
+    $ref: "#/$defs/composition"
+  summary_read2:
+    $ref: "#/$defs/summary"
+  per_position_mean_quality_and_spread_read2:
+    $ref: "#/$defs/anchored_quality"
+  per_position_base_content_read2:
+    $ref: "#/$defs/composition"
+
+required:
+  - meta
+  - summary
+  - per_position_mean_quality_and_spread
+  - per_position_base_content
+
+dependentRequired:
+  summary_read2: &read2_sections
+    - summary_read2
+    - per_position_mean_quality_and_spread_read2
+    - per_position_base_content_read2
+  per_position_mean_quality_and_spread_read2: *read2_sections
+  per_position_base_content_read2: *read2_sections
+
+additionalProperties: true

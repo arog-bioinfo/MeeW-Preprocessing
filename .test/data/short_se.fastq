@@ -1,0 +1,12 @@
+@read_keep
+ACGTACGTACGTACGTACGT
++
+IIIIIIIIIIIIIIIIIIII
+@read_lowqual
+ACGTACGTACGTACGTACGT
++
+!!!!!!!!!!!!!!!!!!!!
+@read_lowlength
+ACGTAC
++
+IIIIII

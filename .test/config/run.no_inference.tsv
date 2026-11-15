@@ -1,0 +1,6 @@
+group	sample	data_type	read1	read2	contam
+test_short_se	short	short_se	data/short_se.fastq	""	""
+test_short_pe	short	short_pe	data/short_pe_R1.fastq	data/short_pe_R2.fastq	""
+test_long	long	long	data/long.fastq	""	data/contam.fa
+test_nano_raw	long	nano-raw	data/long.fastq	""	data/contam.fa
+test_pacbio_raw	long	pacbio-raw	data/long.fastq	""	data/contam.fa

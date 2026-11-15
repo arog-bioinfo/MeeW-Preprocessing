@@ -1,0 +1,86 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+type: object
+description: Generated short-read auto-preprocess recommendation contract.
+required: [recommendations, tool_args, warnings]
+additionalProperties: false
+properties:
+  recommendations:
+    $ref: "#/$defs/short_recommendations"
+  tool_args:
+    $ref: "#/$defs/short_tool_args"
+  warnings:
+    $ref: "#/$defs/warnings"
+$defs:
+  warnings:
+    type: array
+    items:
+      type: object
+      required: [code, message]
+      additionalProperties: false
+      properties:
+        code:
+          enum:
+            - tailcrop_safeguard_adjusted
+            - tailcrop_suppressed_as_no_op
+            - composition_headcrop_enabled
+        message:
+          type: string
+          minLength: 1
+  short_recommendations:
+    type: object
+    required:
+      - read1
+      - read2
+    additionalProperties: false
+    properties:
+      read1:
+        $ref: "#/$defs/mate_recommendation"
+      read2:
+        anyOf:
+          - $ref: "#/$defs/mate_recommendation"
+          - type: "null"
+  mate_recommendation:
+    type: object
+    required:
+      - headcrop_bases
+      - tailcrop_base_position
+      - maximum_length_after_headcrop_bases
+    additionalProperties: false
+    properties:
+      headcrop_bases:
+        type: integer
+        minimum: 0
+      tailcrop_base_position:
+        type: [integer, "null"]
+        minimum: 1
+      maximum_length_after_headcrop_bases:
+        type: [integer, "null"]
+        minimum: 1
+  short_tool_args:
+    type: object
+    required: [fastp]
+    additionalProperties: false
+    properties:
+      fastp:
+        type: object
+        required: [--average_qual, --length_required]
+        additionalProperties: false
+        properties:
+          --trim_front1:
+            type: integer
+            minimum: 1
+          --trim_front2:
+            type: integer
+            minimum: 1
+          --max_len1:
+            type: integer
+            minimum: 1
+          --max_len2:
+            type: integer
+            minimum: 1
+          --average_qual:
+            type: integer
+            minimum: 0
+          --length_required:
+            type: integer
+            minimum: 1

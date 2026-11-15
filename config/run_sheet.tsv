@@ -1,0 +1,2 @@
+group	sample	data_type	read1	read2
+example_short_pe	short	short_pe	.test/data/short_pe_R1.fastq	.test/data/short_pe_R2.fastq

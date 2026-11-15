@@ -1,0 +1,4 @@
+group	sample	data_type	read1	read2	contam
+test_infer_pe	short	short_pe	data/infer_pe_R1.fastq	data/infer_pe_R2.fastq	""
+test_hybrid	short	short_pe	data/short_pe_R1.fastq	data/short_pe_R2.fastq	""
+test_hybrid	long	nano-raw	data/long.fastq	""	""

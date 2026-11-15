@@ -1,0 +1,49 @@
+from snakemake.utils import min_version
+
+min_version("9.12.0")
+
+
+# load configuration
+# -----------------------------------------------------
+configfile: "config/config.yaml"
+
+
+# load rules
+# -----------------------------------------------------
+include: "rules/common.smk"
+
+
+pathvars:
+    results=RESULTS_ROOT,
+    logs=LOGS_ROOT,
+
+
+include: "rules/qc.smk"
+include: "rules/preprocessing.smk"
+
+
+if AUTO_PREPROCESS_ENABLED:
+
+    include: "rules/auto_preprocess.smk"
+
+
+# optional messages, log and error handling
+# -----------------------------------------------------
+onstart:
+    print("\n--- Analysis started ---\n")
+
+
+onsuccess:
+    print("\n--- Workflow finished! ---\n")
+
+
+onerror:
+    print("\n--- An error occurred! ---\n")
+
+
+# target rules
+# -----------------------------------------------------
+rule all:
+    default_target: True
+    input:
+        FINAL_TARGETS,

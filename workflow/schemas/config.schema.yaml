@@ -1,0 +1,122 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+type: object
+description: main configuration schema for the workflow
+properties:
+  run_sheet:
+    type: string
+    minLength: 1
+    pattern: "\\S"
+    description: TSV run sheet path; environment variables and ~ are expanded, while relative paths use the Snakemake working directory
+  auto_preprocess:
+    type: object
+    description: Sequali-based short-read inference; hybrids infer only the short branch, while long-read preprocessing remains manually configured
+    properties:
+      enabled:
+        type: boolean
+        description: enable short-read inference from raw Sequali JSON; pure long-read workflows ignore this setting
+        default: true
+      composition_headcrop_enabled:
+        type: boolean
+        description: Explicit opt-in for the legacy composition-derived 5' headcrop scan; false skips the scan and returns zero headcrop.
+      max_headcrop:
+        type: integer
+        minimum: 0
+        description: Maximum inferred 5' headcrop, in bases.
+      headcrop_base_imbalance_threshold:
+        type: number
+        minimum: 0
+        maximum: 1
+        description: Strict 5' headcrop trigger threshold for max(abs(A-T), abs(G-C)), as a dimensionless fraction in [0,1].
+      tailcrop_mott_quality_cutoff:
+        type: number
+        minimum: 0
+        maximum: 93
+        description: Quality cutoff for direct Phred-score differences (cutoff minus mean quality) accumulated 3'-inward; tailcrop uses the greatest positive cumulative suffix score, choosing the shortest suffix on ties; the canonical default is 20.
+      mott_positive_weight:
+        type: number
+        minimum: 0
+        default: 1.0
+        description: Multiplier for positive Mott differences (cutoff minus mean quality greater than zero); omission behaves as 1.0.
+      mott_negative_weight:
+        type: number
+        minimum: 0
+        default: 1.0
+        description: Multiplier for negative Mott differences (cutoff minus mean quality less than zero); omission behaves as 1.0.
+      tailcrop_min_retained_fraction:
+        type: number
+        minimum: 0
+        maximum: 1
+        description: Minimum fraction of nominal maximum raw-read length retained by the tailcrop safeguard; each mate floor is ceil(nominal maximum length times this fraction).
+      average_quality:
+        type: integer
+        minimum: 0
+        maximum: 93
+        description: Configured fastp minimum read-average quality threshold on fastp's Phred-scaled interface; tool read-average calculations can differ from Sequali and other tools.
+      minimum_length:
+        type: integer
+        minimum: 1
+        description: Configured fastp minimum retained read length, in bases.
+    allOf:
+      - if:
+          required:
+            - enabled
+          properties:
+            enabled:
+              const: false
+        else:
+          required:
+            - composition_headcrop_enabled
+            - max_headcrop
+            - headcrop_base_imbalance_threshold
+            - tailcrop_mott_quality_cutoff
+            - tailcrop_min_retained_fraction
+            - average_quality
+            - minimum_length
+    additionalProperties: false
+  sequali:
+    type: object
+    description: sequali QC configuration
+    properties:
+      extra:
+        type: string
+        description: extra CLI options passed to sequali wrapper
+    additionalProperties: false
+  fastp:
+    type: object
+    description: fastp trimming/filtering configuration
+    properties:
+      adapters:
+        type: string
+        description: adapter-related options for fastp wrapper
+      extra:
+        type: string
+        description: extra CLI options passed to fastp wrapper
+    additionalProperties: false
+  chopper:
+    type: object
+    description: chopper trimming/filtering configuration; Chopper arguments are manual only
+    properties:
+      extra:
+        type: string
+        description: manual extra CLI options passed to the chopper wrapper
+    additionalProperties: false
+  porechop_abi:
+    type: object
+    description: porechop_abi adapter trimming configuration
+    properties:
+      extra:
+        type: string
+        description: extra CLI options passed to porechop_abi command
+      ab_initio_config:
+        type: string
+        description: optional path to porechop_abi ab_initio config file; environment variables and ~ are supported
+      custom_adapters:
+        type: string
+        description: optional path to porechop_abi custom adapters file; environment variables and ~ are supported
+    additionalProperties: false
+
+required:
+  - run_sheet
+  - auto_preprocess
+
+additionalProperties: false

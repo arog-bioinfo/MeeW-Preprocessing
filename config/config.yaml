@@ -1,0 +1,71 @@
+# ====================
+# Workflow Inputs
+# ====================
+
+# --------------------
+# Run Sheet
+# --------------------
+run_sheet: config/run_sheet.tsv
+
+# ====================
+# Automatic Parameter Inference
+# ====================
+
+# --------------------
+# Auto Preprocess
+# --------------------
+auto_preprocess:
+  enabled: true
+  # Composition-derived 5' headcrop is disabled by default. When explicitly
+  # enabled, the legacy A/T and G/C imbalance scan and maximum remain in use.
+  composition_headcrop_enabled: false
+  max_headcrop: 12
+  headcrop_base_imbalance_threshold: 0.10
+
+  # Infer each mate's 3' tailcrop from its Sequali end-anchor mean qualities.
+  # Starting at the 3' end, choose the shortest suffix with the greatest positive
+  # cumulative weighted sum of (tailcrop_mott_quality_cutoff - mean_quality).
+  tailcrop_mott_quality_cutoff: 20
+  mott_positive_weight: 1.0
+  mott_negative_weight: 1.0
+  # Safeguard a raw tailcrop trigger by retaining at least this fraction of
+  # the corresponding nominal maximum raw-read length (rounded up).
+  tailcrop_min_retained_fraction: 0.75
+
+  # Short-read read-level filtering
+  # Sequali/NanoPlot average quality uses expected-error rates,
+  # while FastQC/Falco/Fastp average phred scores; Q>=X counts
+  # can therefore differ substantially and are not strictly comparable.
+  average_quality: 30
+  minimum_length: 30
+
+# ====================
+# Tool Parameters
+# ====================
+
+# --------------------
+# Quality Control
+# --------------------
+sequali:
+  extra: ""
+
+# --------------------
+# Short-Read Preprocessing
+# --------------------
+fastp:
+  adapters: ""
+  extra: ""
+
+# --------------------
+# Long-Read Preprocessing
+# --------------------
+chopper:
+  extra: ""
+
+# --------------------
+# Long-Read Adapter Trimming
+# --------------------
+porechop_abi:
+  extra: ""
+  ab_initio_config: "config/porechop_abi.config"
+  custom_adapters: ""

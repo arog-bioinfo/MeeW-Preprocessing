@@ -1,0 +1,33 @@
+run_sheet: config/run.inference.tsv
+
+auto_preprocess:
+  enabled: true
+  # Tailcrop positions are exact 3'-anchored bases. Crop and length values are
+  # bases; quality values are linear Phred scores; imbalance values are fractions.
+  composition_headcrop_enabled: false
+  max_headcrop: 12
+  headcrop_base_imbalance_threshold: 0.10
+  tailcrop_mott_quality_cutoff: 20
+  mott_positive_weight: 1.0
+  mott_negative_weight: 1.0
+  tailcrop_min_retained_fraction: 0.75
+  # Sequali/NanoPlot average quality uses expected-error rates,
+  # while FastQC/Falco/Fastp average phred scores; Q>=X counts
+  # can therefore differ substantially and are not strictly comparable.
+  average_quality: 30
+  minimum_length: 30
+
+sequali:
+  extra: "--threads 1"
+
+fastp:
+  adapters: "--adapter_sequence ACGGCTAGCTA --adapter_sequence_r2 AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC"
+  extra: "--qualified_quality_phred 20"
+
+chopper:
+  extra: "--minlength 8 --quality 20"
+
+porechop_abi:
+  extra: "--discard_database --no_split --extra_end_trim 0"
+  ab_initio_config: "config/porechop_abi.config"
+  custom_adapters: "config/porechop_abi.adapters.txt"

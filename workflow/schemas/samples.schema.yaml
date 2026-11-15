@@ -1,0 +1,84 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+type: object
+description: one independently processed run-sheet TSV row
+properties:
+  group:
+    type: string
+    minLength: 1
+    maxLength: 128
+    pattern: ^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$
+    description: required result-root identifier
+  sample:
+    type: string
+    maxLength: 128
+    pattern: ^$|^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$
+    description: required column; blank values receive a deterministic data_type_N identifier within the group
+  data_type:
+    type: string
+    description: sequencing data modality; long is preprocessing-only and is not Assembly-wirable in integrated MeeW
+    enum:
+      - short_se
+      - short_pe
+      - long
+      - nano-raw
+      - nano-corr
+      - nano-hq
+      - pacbio-raw
+      - pacbio-corr
+      - pacbio-hifi
+  read1:
+    type: string
+    minLength: 1
+    description: path to first read file; environment variables and ~ are expanded and relative paths use the Snakemake working directory
+  read2:
+    type: string
+    description: path to second read file for paired-end data; environment variables and ~ are supported
+  contam:
+    type: string
+    description: optional contaminant reference for long-read chopper filtering; environment variables and ~ are supported
+
+required:
+  - group
+  - sample
+  - data_type
+  - read1
+
+additionalProperties: false
+
+allOf:
+  - if:
+      properties:
+        data_type:
+          enum:
+            - short_se
+            - short_pe
+    then:
+      properties:
+        contam:
+          maxLength: 0
+  - if:
+      properties:
+        data_type:
+          enum:
+            - short_se
+            - long
+            - nano-raw
+            - nano-corr
+            - nano-hq
+            - pacbio-raw
+            - pacbio-corr
+            - pacbio-hifi
+    then:
+      properties:
+        read2:
+          maxLength: 0
+  - if:
+      properties:
+        data_type:
+          const: short_pe
+    then:
+      required:
+        - read2
+      properties:
+        read2:
+          minLength: 1
